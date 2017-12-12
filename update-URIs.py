@@ -9,8 +9,6 @@ import os, requests, json, logging, csv
 # Create function to work with the two variables (do this first and then the CSV?)
 # Write scripts to download via cURL and then post back. (ok so figure out how cURL works in Python or shift over to bash)
 
-logFile = "log.txt"
-
 def update_log(logStatus, uri,jsonFile,logFile):
     if logStatus == 1:
         log = "SUCCESS: " + jsonFile + " updated to include " + uri + " and new file new-" + jsonFile + " created.\n"
@@ -37,6 +35,7 @@ def read_CSV(csvName,logFile):
         for row in reader:
             write_URI(row['id'],row['uri'],logFile)
 
-csvName="id-uri.csv"
+csvName = input("Enter the CSV name: ")
+logFile = input("Enter the log file name: ")
 
 read_CSV(csvName,logFile)
