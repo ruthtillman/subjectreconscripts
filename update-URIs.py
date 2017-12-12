@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Why does this script exist? This script exists so that we can work separately with ASpace data, create a spreadsheet (CSV) of the IDs of subjects which should be updated to include any authority_id but really probably a URI, and then rewrite downloads of those subjects as JSON files. The data to create this sheet and the JSON downloading info should be done separately. The data will probably come from MySQL queries. The downloads will probably come from a bash file. The bash file may then be called upon to run this Python script after using the same CSV to download the appropriate JSON files.
 
 import os, requests, json, logging, csv
 
@@ -10,6 +11,7 @@ import os, requests, json, logging, csv
 # Write scripts to download via cURL and then post back. (ok so figure out how cURL works in Python or shift over to bash)
 
 def update_log(logStatus, uri,jsonFile,logFile):
+    # It may eventually be useful to write a script which takes the beginning of the ALREADY EXISTS and does a check on those files to get the actual values to ensure it's not blank or otherwise a bad authority.
     if logStatus == 1:
         log = "SUCCESS: " + jsonFile + " updated to include " + uri + " and new file new-" + jsonFile + " created.\n"
     if logStatus == 0:
