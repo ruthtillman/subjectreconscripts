@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, requests, json, logging, ConfigParser, csv
+import os, requests, json, logging, csv
 
 # Check to be sure that the URI is empty
 # Tasks:
@@ -11,27 +11,32 @@ import os, requests, json, logging, ConfigParser, csv
 
 logFile = "log.txt"
 
-
 def update_log(logStatus, uri,jsonFile,logFile):
+    if logStatus == 1:
+        log = "SUCCESS: " + jsonFile + " updated to include " + uri + " and new file new-" + jsonFile + " created.\n"
+    if logStatus == 0:
+        log = "ALREADY EXISTS: " + jsonFile + " already contains a value for authority_id and" + uri + " was not added.\n"
     with open(logFile, "a") as logging:
-    if logStatus = "succcess":
-        log = "URI " + uri + " added to " + jsonFile + " and new file created.\n"
-    if logStatus = "error":
-        log = "URI " + uri + " not added to " + jsonFile + ". The subject already contains an authority_id value.\n"
-    logging.write(log)
+        logging.write(log)
 
 def write_URI(subject_id,uri,logFile):
-    jsonFile = str(subject_id) + '.json'
+    jsonFile = subject_id + '.json'
     subject = json.load(open(jsonFile))
     if 'authority_id' not in subject:
         subject['authority_id'] = uri
         newJson = "new-" + jsonFile
         with open(newJson, "w") as outfile:
             json.dump(subject, outfile, sort_keys=True, indent=4)
-        with open(logFile, "a") as logging:
-            log = "URI " + uri + " added to " + newJson + "\n"
-            logging.write(log)
+        update_log(1,uri,jsonFile,logFile)
     else:
-        with open(logFile, "a") as logging:
-            log = "URI " + uri + " not added to " + jsonFile + ". The subject already contains an authority_id value. \n"
-            logging.write(log)
+        update_log(0,uri,jsonFile,logFile)
+
+def read_CSV(csvName,logFile):
+    with open(csvName, newline='') as data:
+        reader = csv.DictReader(data)
+        for row in reader:
+            write_URI(row['id'],row['uri'],logFile)
+
+csvName="id-uri.csv"
+
+read_CSV(csvName,logFile)
