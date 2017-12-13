@@ -1,7 +1,11 @@
 #!/usr/bin/env python
-# Why does this script exist? This script exists so that we can work separately with ASpace data, create a spreadsheet (CSV) of the IDs of subjects which should be updated to include any authority_id but really probably a URI, and then rewrite downloads of those subjects as JSON files. The data to create this sheet and the JSON downloading info should be done separately. The data will probably come from MySQL queries. The downloads will probably come from a bash file. The bash file may then be called upon to run this Python script after using the same CSV to download the appropriate JSON files.
+# Why does this script exist? This script exists so that we can work separately with ASpace data, create a spreadsheet (CSV) of the IDs of subjects which should be updated to include any authority_id but really probably a URI.
+# This script configures a connection to ArchivesSpace, authenticates the session, and gets headers. It then opens the CSV to download subjects as JSON responses based on the ID. Next, it opens the CSV again, opens each of those JSON files, tests whether it already contains authority_id, and inserts one if it doesn't. It logs either way.
+# A second script will use the same CSV to post those subject records back to the server. A second script is desireable so that spot-checking of the records may be completed before it's run. This could be done by combining and pausing this script, but time should be allowed.
+# The data will probably come from MySQL queries.
 
-import os, requests, json, logging, csv, ConfigParser
+import os, requests, json, logging, csv, configparser
+import datetime
 
 # Check to be sure that the URI is empty
 # Tasks:
@@ -30,16 +34,22 @@ headers = {'X-ArchivesSpace-Session':session}
 def download_subjects(csvName):
     with open(csvName, newline='') as data:
         reader = csv.DictReader(data)
-        for row in reader:
-            results = (requests.get(subjectBaseURL + row['id'], headers=headers)).json()
-            print(results)
+        downloadLog = "subject_download_log.txt"
+        with open(downloadLog, "a") as logging:
+            for row in reader:
+                results = (requests.get(subjectBaseURL + row['id'], headers=headers)).json()
+                subjectFile = row['id'] + '.json'
+                with open(subjectFile, 'w') as outfile:
+                    json.dump(results, outfile, sort_keys=True, indent=4)
+                log = datetime.datetime.now().isoformat() + "\t" + subjectFile + " downloaded\n"
+                logging.write(log)
 
 def update_log(logStatus, uri,jsonFile,logFile):
     # It may eventually be useful to write a script which takes the beginning of the ALREADY EXISTS and does a check on those files to get the actual values to ensure it's not blank or otherwise a bad authority.
     if logStatus == 1:
-        log = "SUCCESS: " + jsonFile + " updated to include " + uri + " and new file new-" + jsonFile + " created.\n"
+        log = datetime.datetime.now().isoformat() + "\tSUCCESS\t" + jsonFile + "\tupdated to include " + uri + " and file new-" + jsonFile + " created.\n"
     if logStatus == 0:
-        log = "ALREADY EXISTS: " + jsonFile + " already contains a value for authority_id and" + uri + " was not added.\n"
+        log = datetime.datetime.now().isoformat() + "\tALREADY EXISTS\t" + jsonFile + "\talready contains a value for authority_id and " + uri + " was not added.\n"
     with open(logFile, "a") as logging:
         logging.write(log)
 
@@ -66,9 +76,3 @@ logFile = input("Enter the log file name: ")
 
 download_subjects(csvName)
 process_CSV(csvName,logFile)
-
-
-
-ASpaceHeader = "X-ArchivesSpace-Session:" + $SESSION
-
-SESSION = input("Enter the ASpace session key: ")
