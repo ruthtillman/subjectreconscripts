@@ -12,6 +12,16 @@ Possible additional functions:
 * Update other aspects of existing subjects.
 * Add genres & non-topical subjects (ASpace's vocab for this is not great)
 
+## Using the config file
+
+This repository contains a file local_settings_model.cfg, which is a model of the local_settings.cfg file referenced by these scripts. The values for each entry follow the entry's declaration and colon without any spacing. For example, if admin username is "ArchivesWizzard," the row should appear as:
+
+```
+user:ArchivesWizzard
+```
+
+For security, modify this to fit your own values, save to a file `local_settings.cfg` in the project's root directory and do not commit/upload outside your institution.
+
 ## External work
 
 This project will also involve work querying the MySQL database to create a lot of the data which will actually go into the CSVs. It will include OpenRefine work in order to reconcile things with MARC records and perform other cleanup. It may include a directory of SQL queries and a directory of OpenRefine markdown files in order to document this work and keep it together.
