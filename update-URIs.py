@@ -19,11 +19,20 @@ config.read(configFilePath)
 dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'),'password': config.get('ArchivesSpace', 'password')}
 baseURL = dictionary['baseURL']
 repositoryBaseURL = '{baseURL}/repositories/{repository}/'.format(**dictionary)
+subjectBaseURL ='{baseURL}/subjects/'.format(**dictionary)
 
 # authenticates the session
 auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
 session = auth["session"]
 headers = {'X-ArchivesSpace-Session':session}
+
+# Adapt this to open the CSV and do the call based on subject base URLs [note, this involved editing to change from repository base URL although that should be stored for handling the updates for DIGITAL OBJECTS]
+def download_subjects(csvName):
+    with open(csvName, newline='') as data:
+        reader = csv.DictReader(data)
+        for row in reader:
+            results = (requests.get(subjectBaseURL + row['id'], headers=headers)).json()
+            print(results)
 
 def update_log(logStatus, uri,jsonFile,logFile):
     # It may eventually be useful to write a script which takes the beginning of the ALREADY EXISTS and does a check on those files to get the actual values to ensure it's not blank or otherwise a bad authority.
@@ -46,7 +55,7 @@ def write_URI(subject_id,uri,logFile):
     else:
         update_log(0,uri,jsonFile,logFile)
 
-def read_CSV(csvName,logFile):
+def process_CSV(csvName,logFile):
     with open(csvName, newline='') as data:
         reader = csv.DictReader(data)
         for row in reader:
@@ -55,7 +64,8 @@ def read_CSV(csvName,logFile):
 csvName = input("Enter the CSV name: ")
 logFile = input("Enter the log file name: ")
 
-read_CSV(csvName,logFile)
+download_subjects(csvName)
+process_CSV(csvName,logFile)
 
 
 
