@@ -22,6 +22,8 @@ user:ArchivesWizzard
 
 For security, modify this to fit your own values, save to a file `local_settings.cfg` in the project's root directory and do not commit/upload outside your institution.
 
+baseURL *should end in a /* in order to be used properly throughout the script. Test to be sure it worker properly.
+
 ## External work
 
 This project will also involve work querying the MySQL database to create a lot of the data which will actually go into the CSVs. It will include OpenRefine work in order to reconcile things with MARC records and perform other cleanup. It may include a directory of SQL queries and a directory of OpenRefine markdown files in order to document this work and keep it together.
