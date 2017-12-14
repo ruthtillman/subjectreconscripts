@@ -21,7 +21,7 @@ config.read(configFilePath)
 
 dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'user': config.get('ArchivesSpace', 'user'),'password': config.get('ArchivesSpace', 'password')}
 baseURL = dictionary['baseURL']
-subjectBaseURL ='{baseURL}/subjects/'.format(**dictionary)
+subjectBaseURL ='{baseURL}subjects/'.format(**dictionary)
 
 # authenticates the session
 auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
