@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 # Creating a script which will take all "new-" subjects created by update-URIs.py and upload them to ArchivesSpace.
+# subjects['title'] - creating new subjects.
+# posts['id']
 
 import os, requests, glob, json, logging, csv, configparser, datetime
 

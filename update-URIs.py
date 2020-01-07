@@ -55,17 +55,32 @@ def update_log(logStatus, uri,jsonFile,logFile):
 
 # opens the JSON file for each subject record, loads it as a JSON object, tests to see if the file contains an authority_id field, if not it adds a new field with the value of the uri it received from process_CSV as its value. It then writes a new JSON file which uses the same identifier, but adds a pre-fix new. The function calls the logging function and passes on a status dependent on whether it found an authority_id and created a new file or not.
 
+## These changes below need to be tested on files which contain blank or other such URIs before committing. Also ASpace needs to be tested to see if this is even an issue.
+
 def write_URI(subject_id,uri,logFile):
     jsonFile = subject_id + '.json'
     subject = json.load(open(jsonFile))
-    if 'authority_id' not in subject:
-        subject['authority_id'] = uri
-        newJson = "new-" + jsonFile
-        with open(newJson, "w") as outfile:
-            json.dump(subject, outfile, sort_keys=True, indent=4)
-        update_log(1,uri,jsonFile,logFile)
+    newJson = "new-" + jsonFile
+    if subject.has_key('authority_id'):
+        if subject['authority_id'] == '':
+            subject['authority_id'] = uri
+            write_subject_JSON(subject,newJson)
+            update_log(1,uri,jsonFile,logFile)
+        elif subject['authority_id'] == ' ':
+            subject['authority_id'] = uri
+            write_subject_JSON(subject,newJson)
+            update_log(1,uri,jsonFile,logFile)
+        else:
+            update_log(0,uri,jsonFile,logFile)
     else:
-        update_log(0,uri,jsonFile,logFile)
+        subject['authority_id'] = uri
+        write_subject_JSON(subject,newJson)
+        update_log(1,uri,jsonFile,logFile)
+
+
+def write_to_JSON(content,newJson):
+    with open(newJson, "w") as outfile:
+        json.dump(content, outfile, sort_keys=True, indent=4)
 
 # Opens the CSV which has been provided as input by the user, opens and passes to a CSV parser, and for each row calls the function to add test for and add authority_ids if they don't exist, passing along the values for the id column and URI column from the CSV along with the name of the log file for homebrewed logging purposes.
 
