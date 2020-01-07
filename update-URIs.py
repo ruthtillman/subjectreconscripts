@@ -44,17 +44,16 @@ def write_URI(subject_id,uri):
         subject['authority_id'] = uri
         write_to_JSON(subject,newJson)
 
-# Opens the CSV which has been provided as input by the user, opens and passes to a CSV parser, and for each row calls the function to add test for and add authority_ids if they don't exist, passing along the values for the id column and URI column from the CSV along with the name of the log file for homebrewed logging purposes.
+# Opens the CSV which has been provided as input by the user, opens and passes to a CSV parser, and for each row calls the function to add test for and add authority_ids if they don't exist.
 
-def process_CSV(csvName,logFile):
+def process_CSV(csvName):
     with open(csvName, newline='') as data:
         reader = csv.DictReader(data)
         for row in reader:
             if row['LC_URI'] != '':
-                write_URI(row['ASpaceID'],row['LC_URI'],logFile)
+                write_URI(row['ASpaceID'],row['LC_URI'])
 
 csvName = input("Enter the CSV name: ")
-logFile = input("Enter the log file name: ")
 
 download_subjects(csvName,client)
-process_CSV(csvName,logFile)
+process_CSV(csvName)
