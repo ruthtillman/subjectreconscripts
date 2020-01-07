@@ -36,13 +36,13 @@ def write_URI(subject_id,uri):
     if subject.has_key('authority_id'):
         if subject['authority_id'] == '':
             subject['authority_id'] = uri
-            write_subject_JSON(subject,newJson)
+            write_to_JSON(subject,newJson)
         elif subject['authority_id'] == ' ':
             subject['authority_id'] = uri
-            write_subject_JSON(subject,newJson)
+            write_to_JSON(subject,newJson)
     else:
         subject['authority_id'] = uri
-        write_subject_JSON(subject,newJson)
+        write_to_JSON(subject,newJson)
 
 # Opens the CSV which has been provided as input by the user, opens and passes to a CSV parser, and for each row calls the function to add test for and add authority_ids if they don't exist, passing along the values for the id column and URI column from the CSV along with the name of the log file for homebrewed logging purposes.
 
