@@ -7,7 +7,7 @@ import requests, csv, os, time
 #  write these into the CSV
 
 def URI_escape(value):
-  return value.replace(' -- ', '--').replace(' ', '%20').replace(',', '%C').replace("'","%27").replace('(', '%28').replace(')', '%29')
+  return value.replace(' -- ', '--').replace(' ', '%20').replace(',', '%2C').replace("'","%27").replace('(', '%28').replace(')', '%29')
 
 def get_subject_URIs(writer,csvSource):
   with open(csvSource, newline='') as data:
@@ -17,7 +17,7 @@ def get_subject_URIs(writer,csvSource):
       subjectURI = 'http://id.loc.gov/authorities/subjects/label/' + subjectLabel
       subjectResponse = requests.get(subjectURI)
       subjectResponse.response_code
-
+      time.sleep(4)
 
 def write_subject_csv(csvOutput,csvSource):
     fieldnames = ['ASpaceID', 'subject', 'LC_URI', 'LC_Label']
