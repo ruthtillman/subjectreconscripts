@@ -24,10 +24,12 @@ def get_subject_URIs(writer,csvSource):
 
 def write_subject_csv(csvOutput,csvSource):
     fieldnames = ['ASpaceID', 'subject', 'LC_URI', 'LC_Label']
-    with open(csvName, 'w', newline='') as outputFile:
+    with open(csvOutput, 'w', newline='') as outputFile:
         writer = csv.DictWriter(outputFile, fieldnames=fieldnames)
         writer.writeheader()
         get_subject_URIs(writer,csvSource)
 
 csvOutput='recon-test/scl_recon_2020_01_07.csv'
 csvSource='recon-test/scl_lcsh_2020_01_06.csv'
+
+write_subject_csv(csvOutput,csvSource)
