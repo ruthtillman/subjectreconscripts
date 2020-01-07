@@ -1,47 +1,26 @@
 #!/usr/bin/env python
 # Why does this script exist? This script exists so that we can work separately with ASpace data, create a spreadsheet (CSV) of the IDs of subjects which should be updated to include any authority_id but really probably a URI.
-# This script configures a connection to ArchivesSpace, authenticates the session, and gets headers. It then opens the CSV to download subjects as JSON responses based on the ID. Next, it opens the CSV again, opens each of those JSON files, tests whether it already contains authority_id, and inserts one if it doesn't. It logs either way.
-# A second script will use the same CSV to post those subject records back to the server. A second script is desireable so that spot-checking of the records may be completed before it's run. This could be done by combining and pausing this script, but time should be allowed.
-# The data will probably come from MySQL queries.
+# This script connects to ASpace It then opens the CSV to download subjects as JSON responses based on the ID (if a URI exists). Next, it opens the CSV again, opens each of those JSON files, tests whether it already contains authority_id, and inserts one if it doesn't.
+# A second script will post subject records back to the server.
 
-import os, requests, json, logging, csv, configparser, datetime
+import os, json, csv, datetime
 
-# Check to be sure that the URI is empty
-# Tasks:
-# Handle session ID and ASpace API URI as params to pass to the script variables
-# Write scripts to download via cURL and then post back. (ok so figure out how cURL works in Python or shift over to bash)
+# Validate ASnake
+from asnake.client import ASnakeClient
+client = ASnakeClient()
+client.authorize()
 
-# Sets up config stuff for validation. Borrowed from ArchivesSnake-linked Duke scripts
+# Opens the CSV which has been input by the user. Opens it as a CSV reader. For each row the CSV which contains an LC ID, send an API get request with already-generated headers based on the base API URL for subjects and the subject ID as taken from the id column of the CSV. Interprets response as JSON. Uses the same id to create a filename and dumps the JSON response into the file.
 
-configFilePath = 'local_settings.cfg'
-config = configparser.ConfigParser()
-config.read(configFilePath)
-
-# From Duke: URL parameters dictionary, used to manage common URL patterns
-
-dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'user': config.get('ArchivesSpace', 'user'),'password': config.get('ArchivesSpace', 'password')}
-baseURL = dictionary['baseURL']
-subjectBaseURL ='{baseURL}subjects/'.format(**dictionary)
-
-# authenticates the session
-auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
-session = auth["session"]
-headers = {'X-ArchivesSpace-Session':session}
-
-# Opens the CSV which has been input by the user. Opens it as a CSV reader, starts a download log file and opens that to write the confirmations of what's been downloaded (this is not _true_ logging). For each row the CSV, send an API get request with already-generated headers based on the base API URL for subjects and the subject ID as taken from the id column of the CSV. Interprets response as JSON. Uses the same id to create a filename and dumps the JSON response into the file. Then writes a log entry presuming that the download was successful at the approx timestamp (note, it will be off by at most a second)... the assumption is that any breaks in the process will stop the log from being written but the errors won't be written to the log yet.
-
-def download_subjects(csvName):
+def download_subjects(csvName,client):
     with open(csvName, newline='') as data:
         reader = csv.DictReader(data)
-        downloadLog = "subject_download_log.txt"
-        with open(downloadLog, "a") as logging:
-            for row in reader:
-                results = (requests.get(subjectBaseURL + row['id'], headers=headers)).json()
-                subjectFile = row['id'] + '.json'
+        for row in reader:
+            if row['LC_URI'] != '':
+                subject = client.get('/subjects/' + row['ASpaceID'].json()
+                subjectFile = 'recon-test/' + row['ASpaceID'] + '.json'
                 with open(subjectFile, 'w') as outfile:
                     json.dump(results, outfile, sort_keys=True, indent=4)
-                log = datetime.datetime.now().isoformat() + "\t" + subjectFile + " downloaded\n"
-                logging.write(log)
 
 # Takes a set of inputs related to an action just performed and either writes a positive or negative status with those log values into the log. The tab-separation means this can be used in spreadsheet format (as TSV).
 
@@ -88,10 +67,11 @@ def process_CSV(csvName,logFile):
     with open(csvName, newline='') as data:
         reader = csv.DictReader(data)
         for row in reader:
-            write_URI(row['id'],row['uri'],logFile)
+            if row['LC_URI'] != '':
+                write_URI(row['ASpaceID'],row['LC_URI'],logFile)
 
 csvName = input("Enter the CSV name: ")
 logFile = input("Enter the log file name: ")
 
-download_subjects(csvName)
+download_subjects(csvName,client)
 process_CSV(csvName,logFile)
