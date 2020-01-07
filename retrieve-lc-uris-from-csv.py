@@ -16,7 +16,9 @@ def get_subject_URIs(writer,csvSource):
       subjectLabel = URI_escape(row['subject'])
       subjectURI = 'http://id.loc.gov/authorities/subjects/label/' + subjectLabel
       subjectResponse = requests.get(subjectURI)
-      subjectResponse.response_code
+      if subjectResponse.status_code == 200:
+          subjectResponse.headers['X-Uri']
+          subjectResponse.headers['X-Preflabel']
       time.sleep(4)
 
 def write_subject_csv(csvOutput,csvSource):
