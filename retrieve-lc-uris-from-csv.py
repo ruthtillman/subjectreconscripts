@@ -17,8 +17,9 @@ def get_subject_URIs(writer,csvSource):
       subjectURI = 'http://id.loc.gov/authorities/subjects/label/' + subjectLabel
       subjectResponse = requests.get(subjectURI)
       if subjectResponse.status_code == 200:
-          subjectResponse.headers['X-Uri']
-          subjectResponse.headers['X-Preflabel']
+          writer.writerow({'ASpaceID': row['ASpaceID'], 'subject' : row['subject'], 'LC_URI' : subjectResponse.headers['X-Uri'], 'LC_Label': subjectResponse.headers['X-Preflabel']})
+      else:
+          writer.writerow({'ASpaceID': row['ASpaceID'], 'subject' : row['subject'], 'LC_URI' : '', 'LC_Label': ''})
       time.sleep(4)
 
 def write_subject_csv(csvOutput,csvSource):
