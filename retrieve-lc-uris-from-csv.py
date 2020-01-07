@@ -1,11 +1,6 @@
-import requests, csv, os
+import requests, csv, os, time
 
 # Steps to take:
-# open CSV and read title
-# html escape spaces
-# query
-# subjectURI = 'https://id.loc.gov/authorities/subjects/label/' + label
-# thing = requests.get(subjectURI)
 # if thing.response_code == 200:
 #  subject = thing.headers['X-Uri']
 #  confirmLabel = thing.headers['X-Preflabel']
@@ -19,6 +14,10 @@ def get_subject_URIs(writer,csvSource):
     reader = csv.DictReader(data)
     for row in reader:
       subjectLabel = URI_escape(row['subject'])
+      subjectURI = 'http://id.loc.gov/authorities/subjects/label/' + subjectLabel
+      subjectResponse = requests.get(subjectURI)
+      subjectResponse.response_code
+
 
 def write_subject_csv(csvOutput,csvSource):
     fieldnames = ['ASpaceID', 'subject', 'LC_URI', 'LC_Label']
