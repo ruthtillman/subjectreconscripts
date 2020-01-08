@@ -21,19 +21,19 @@ def download_subjects(csvName,client):
         reader = csv.DictReader(data)
         for row in reader:
             if row['LC_URI'] != '':
-                subject = client.get('/subjects/' + row['ASpaceID'].json()
-                subjectFile = 'recon-test/' + row['ASpaceID'] + '.json'
-                write_to_json(subject,subjectFile)
+                subject = client.get('/subjects/' + row['ASpaceID']).json()
+                subjectFilename = 'recon-test/' + str(row['ASpaceID']) + '.json'
+                write_to_JSON(subject,subjectFilename)
 
 # opens the JSON file for each subject record, loads it as a JSON object, tests to see if the file contains an authority_id field, if not it adds a new field with the value of the uri it received from process_CSV as its value. It then writes a new JSON file which uses the same identifier, but adds a pre-fix "new".
 
 ## These changes below need to be tested on files which contain blank or other such URIs before committing. Also ASpace needs to be tested to see if this is even an issue.
 
 def write_URI(subject_id,uri):
-    jsonFile = subject_id + '.json'
+    jsonFile = 'recon-test/' + subject_id + '.json'
     subject = json.load(open(jsonFile))
-    newJson = "new-" + jsonFile
-    if subject.has_key('authority_id'):
+    newJson = 'recon-test/new-' + subject_id + '.json'
+    if 'authority_id' in subject:
         if subject['authority_id'] == '':
             subject['authority_id'] = uri
             write_to_JSON(subject,newJson)
@@ -53,7 +53,7 @@ def process_CSV(csvName):
             if row['LC_URI'] != '':
                 write_URI(row['ASpaceID'],row['LC_URI'])
 
-csvName = input("Enter the CSV name: ")
+csvName = "recon-test/scl_recon_2020_01_07.csv"
 
-download_subjects(csvName,client)
+#download_subjects(csvName,client)
 process_CSV(csvName)
